@@ -1,8 +1,5 @@
-#Verónica Zepeda
-#verozepeda@ciencias.unam.mx
 
-
-#Función para enlistar cuantas especies de cada gremio hay en cada red de interacciones tróficas
+# Function to count species in each trophic level 
 filtro <- function(array_A, n_redes){
   n_tipo = matrix(NA, ncol=4,nrow = n_redes)
   colnames(n_tipo)=c("top","inter","basal","ais")
@@ -16,23 +13,21 @@ filtro <- function(array_A, n_redes){
   n_tipo
 }
 
-#Para obtener la base
+
 aa=filtro(array_redes,n_redes = dim(array_redes)[3])
 
-sp_ais=which(aa[,4] > 0) #redes con especies aisladas
+sp_ais=which(aa[,4] > 0) #Networks with isolated species
 
-new_array = array_redes[,,-sp_ais] #removemos las redes con especies aisladas
+new_array = array_redes[,,-sp_ais] 
 
-bb=filtro(new_array,n_redes = dim(new_array)[3]) #Volvemos a hacer la base 
+bb=filtro(new_array,n_redes = dim(new_array)[3]) 
 
-which(bb[,4] > 0) #para revisar que ya no hay especies aisladas
-which(bb[,3] >= 1) #redes con al menos una especie basal
+which(bb[,4] > 0) #check for isolated species
+which(bb[,3] >= 1) #networks with at least one basal species
 no_bas=which(bb[,3] == 0)
 
-redes_filtradas = new_array[,,-no_bas] #array de redes sin especies aisladas y con al menos una especie basal
+redes_filtradas = new_array[,,-no_bas] #array of network witouth isolated species and at least one basal species
 pru=filtro(redes_filtradas,n_redes = dim(redes_filtradas)[3])
 which(pru[,4] > 0)
 which(pru[,3] == 0)
 
-#Guarda el array de redes tróficas en un objeto Rdata
-save(redes_filtradas,file="/Users/veronicazepeda/Documents/PosdoctLANCIS/Datos/array_redes_filtradasBUENO.Rdata")
