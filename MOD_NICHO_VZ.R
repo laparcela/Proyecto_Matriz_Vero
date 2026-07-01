@@ -1,44 +1,45 @@
-#Verónica Zepeda
-#verozepeda@ciencias.unam.mx
 
+# Function to generate interaction networks based on the niche model of Williams and Martínez (2000)
 
-#Función para obtener las redes de interacciones con base en el modelo de nicho de Williams y Martínez, 2000
-#Este código es una traducción y adaptación del código reportado en CITA ARTICULO LETY
+# Function arguments
 
-# Argumentos de la función
-# S     : numero de especies. Valor = 10
-# C     : conectividad.  Valor = 0.2
+# S : number of species (default = 10)
 
-# Salidas de la función
-#   A       : matriz de interacciones tróficas.
+# C : connectance (default = 0.2)
+
+#
+
+# Function output
+
+# A : trophic interaction matrix
 
 mod_nicho <- function(S,C){
   alpha = 1
   beta = (alpha/(2*C))-alpha
   A = matrix(data=0, nrow=S, ncol=S)
-  x = rbeta(1,alpha,beta) #valor de distribución beta B(alpha,beta) con alpha=1 y beta=alpha/2C - alpha 
-  nicho=runif(S) #vector que corresponde al valor de nicho de cada especie
+  x = rbeta(1,alpha,beta) #alpha=1 and beta=alpha/2C - alpha 
+  nicho=runif(S) 
   
-  #intervalos ri's de las especies
+  
   interv = rep(0, S)
 for(i in 1:S){
   interv[i]= x * nicho[i]
 }
-#centros ci : numero aleatorio entre ri/2 y min(ni, 1-ri/2)
+
   cent = rep(0,S)
  for(i in 1:S){
   ai = interv[i]/2
   bi = min(nicho[i], 1-interv[i]/2)
   cent[i] = ai + (bi-ai)*runif(1)
 }
-  #haciendo la matriz A
+  
   for( i in 1:S){
     for(j in 1:S){
       if((cent[i] - interv[i]/2 <= nicho[j]) && (nicho[j] <= cent[i] + interv[i]/2)) {A[j,i]=1}
     }
   }
 
-  # Para eliminar canibalismo 
+  # To remove canibalism
   for(i in 1:S){
     A[i,i] = 0
   }
@@ -46,12 +47,11 @@ for(i in 1:S){
 }
 
 
-#Para obtener una matriz de interacciones tróficas. 
+#PMatrix of trophic interactions
 matriz_interacciones = mod_nicho(10,0.2)
 
 
-#Para obtener multiples matrices y guardarlas en un array.
-
+#Save multiple networks in an array
 redes <- function(S, C, n_redes){
   array_redes = array(NA,dim = c(S, S, n_redes))
   for(i in 1:n_redes){
@@ -62,10 +62,6 @@ redes <- function(S, C, n_redes){
 
 mul_redes=redes(10, 0.2, 150)
 
-#Para guardar el array con las redes como Rdata
-save(mul_redes,file="/Users/veronicazepeda/Documents/PosdoctLANCIS/Datos/array_redes.Rdata")
-
-##Cargar bibliotecas para gráficar la red
 library(GGally)
 library(network)
 library(sna)
