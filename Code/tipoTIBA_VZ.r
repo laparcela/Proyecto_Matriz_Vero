@@ -1,47 +1,41 @@
-#Verónica Zepeda
-#verozepeda@ciencias.unam.mx
 
-## Función que clasifica a las especies de una matríz de adyacencia de acuerdo a su tipo (Top, Intermedias, Basales, Aisladas)
-#Este código es una traducción y adaptación del código en MatLab reportado en CITA ARTICULO LETY
+## Function to classify species in an adjacency matrix according to their type (Top, Intermediate, Basal, Isolated)
 
-## Argumentos:                                                           
-##   A : matriz de interacciones
+## ARGUMENTS:
+##   A : interaction (adjacency) matrix
 
-## SALIDA:                                                            
-##   numtipo : arreglo de 1X4, da el numero de especies T,I,B y A     
-##   tyTop   : arreglo de las especies que son Top                    
-##   tyInter : arreglo de las especies que son Intermedias            
-##   tyBasal : arreglo de las especies que son Basales                
-##   tyAis   : arreglo de las especies que son Aisladas
+## OUTPUT:
+##   numtype : 1 × 4 array giving the number of species in each category (Top, Intermediate, Basal, Isolated)
+##   tyTop   : array of species classified as Top
+##   tyInter : array of species classified as Intermediate
+##   tyBasal : array of species classified as Basal
+##   tyIsol  : array of species classified as Isolated
 
-library(sna) #para usar outdegree, indegree and degree
+library(sna) 
 
 tipoTIBA <- function(A){
-    S <- dim(A)[1] # numero de especies                                   
+    S <- dim(A)[1] # number of species                                 
     numtipo <- rep(0,4)
+                                               
+    tyTop <- c()   # vector for top species                       
+    tyInter <- c() # vector for intermediate species                     
+    tyBasal <- c() # vector for basal species                         
+    tyAis <- c()   # vector for isolated species
     
-    ## identifica la especie que corresponde a cada tipo y lo guarda en un vector                                             
-    tyTop <- c()   # vector para especies superiores                        
-    tyInter <- c() # vector para especies intermedias                      
-    tyBasal <- c() # vector para especies basales                          
-    tyAis <- c()   # vector para especies aisladas 
-    
-    ## calcular grado de entrada y salida de la red
     outd <- degree(A, cmode = "outdegree", gmode = "digraph")        
     intd <- degree(A, cmode = "indegree", gmode = "digraph")
-    
-    # contando tipos de especies y agregandolas a los vectores de cada tipo   
+     
     for (j in 1:S){                                                      
-        if (outd[j] == 0 && intd[j] > 0){# contando especies superior : T
+        if (outd[j] == 0 && intd[j] > 0){
             numtipo[1] <- numtipo[1] + 1                              
             tyTop <- c(tyTop, j)                                           
-        } else if (outd[j] > 0 && intd[j] > 0){# especie intermedia: I"   
+        } else if (outd[j] > 0 && intd[j] > 0){  
             numtipo[2] <- numtipo[2] + 1                             
             tyInter <- c(tyInter, j)                                       
-        } else if (outd[j] > 0 && intd[j] == 0){# especie basal: B"       
+        } else if (outd[j] > 0 && intd[j] == 0){       
             numtipo[3] <- numtipo[3] + 1                         
             tyBasal <- c(tyBasal, j)                                    
-        } else if (outd[j] == 0 && intd[j] == 0){# especie aislada: A"    
+        } else if (outd[j] == 0 && intd[j] == 0){    
             numtipo[4] <- numtipo[4] + 1                           
             tyAis <- c(tyAis, j)                                           
         }                                                                
