@@ -1,41 +1,38 @@
-#Verónica Zepeda
-#verozepeda@ciencias.unam.mx
 
-## Función para proyectar la dinámica poblacional de cada especie y tipo de especie.
-#Este código es una traducción y adaptación del código en MatLab reportado en CITA ARTICULO LETY
+## Function to project the population dynamics of each species and species type
 
-## ARGUMENTOS:                                                                                 
-## X0     : Vector de abundancia inicial, tamaño 1 X S                                  
-## K      : Vector de capacidad de carga, tamaño 1 X S. Valores de capacidad de karga K=[ki's.]                                        
-## R      : Vector de tasa de crecimiento intrínseco, tamaño 1 X S. Valores de tasa de crecimento intrinseco R=[ri's].                             
-## A      : Matriz de interacciones tróficas. 
-## w      : tipo de peso que se usará: si w=1, entonces es un vector W = 1, de tamaño 1 X S 
-## Ti     : tiempo inicial
-## Tf     : tiempo final 
-## num    : número de interacciones ¿? numero de pasos desde Ti hasta Tf. ¿a qué se refiere con el número de pasos?
-## bound  : cota inferior para valor de abundancia (para contar las especies que sobreviven). Esta la tomaremos como 10^(-6), en general. revisar trabajo irene  
+## ARGUMENTS:
+## X0     : Initial abundance vector, size 1 × S
+## K      : Carrying capacity vector, size 1 × S. Carrying capacity values K = [k_i]
+## R      : Intrinsic growth rate vector, size 1 × S. Growth rate values R = [r_i]
+## A      : Trophic interaction matrix
+## w      : Type of weight to use: if w = 1, then W is a vector of ones, size 1 × S
+## Ti     : Initial time
+## Tf     : Final time
+## num    : Number of time steps between Ti and Tf
+## bound  : Lower bound for abundance values (used to count surviving species).
+##          Typically set to 10^(-6); see Irene’s work for reference
 
-## SALIDA:
-## evol_cont  : Matriz de S X Tf. Muestra los cambios en las abundancias de las especies a lo largo del tiempo. 
-## abundancia : Vector con las abundancias finales de cada especie. 
-## Sp         : número de especies que sobreviven en el estado final (num+1) 
+## OUTPUT:
+## evol_cont  : Matrix of size S × Tf. Shows changes in species abundances over time
+## abundancia  : Vector with the final abundances of each species
+## Sp         : Number of species that survive in the final state (num + 1)
 
-##Ecuación que describe la dinámica poblacional
+## Equation describing population dynamics
 # dxi/dt = xi [(1-xi/Ki) (ri + ei*Sum(wji*aji*xj)) - Sum(wij*aij*xj) ]
 
-#Cargar la función que clasifica a las especies según su tipo (top, intermedia, basales, aisladas)
-source("/Users/veronicazepeda/Documents/PosdoctLANCIS/Código/tipoTIBA_VZ.R")
+source("./tipoTIBA_VZ.R")
 
 solEuler_peso <- function(X0,K,R,A,w,Ti,Tf,num,bound){
-  S <- dim(A)[1]# num. de especies	
+  S <- dim(A)[1]# Number of species
   
-  ## Asignando pesos de las especies. Para este estudio W = 1 dado que el peso es igual para todas las especies. 
+  ## For the purpose of this study W = 1 
   W <- rep(1,S)
   
-  ## Para asignar la eficiencia de los distintos gremios de especies:                                                                            
-  ## basal        :  ei=0                                                                    
-  ## intermedia   :  ei=0.66  #referencia de Kefi                                                              
-  ## top          :  ei=0.85                                                                 
+ ## To assign the efficiency of different species guilds:
+## basal        : ei = 0
+## intermediate : ei = 0.66  # reference from Kéfi
+## top          : ei = 0.85                                                             
   
   ei <- rep(0.66,S)
   
@@ -43,15 +40,12 @@ solEuler_peso <- function(X0,K,R,A,w,Ti,Tf,num,bound){
   ei[tipos$tyTop] <- 0.85  
   ei[tipos$tyBasal] <- 0
   
-  ## tamaño de paso ¿QUÉ ES EL TAMAÑO DE PASO? 
+  ## Size of the integration step
   h <- (Tf-Ti)/(num)
   
-  evol_cont <- matrix(data=0, nrow=num+1,S) #Matriz que contiene los cambios en las abundancias para todas las especies a lo largo del tiempo. 
-  
-  #corresponde al valor inicial de las especies                                        
+  evol_cont <- matrix(data=0, nrow=num+1,S) #                                   
   evol_cont[1,] = X0                       
-  
-  ### iteraciones. Empieza en 2, en evol_cont cada renglón corresponde a un paso de tiempo                                                                          
+                                                                        
   for (t in 2:(num+1)){                                                                       
     for (i in 1:S){                                                                       
       cap <- 1-(evol_cont[t-1,i]/K[i])                                                  
@@ -68,16 +62,16 @@ solEuler_peso <- function(X0,K,R,A,w,Ti,Tf,num,bound){
   }
   
   
-  # contando las especies que sobreviven y no explotan. Cuantifica la riqueza.                             
+  # For species richness                            
   Sp <- 0                                                                                   
   for (i in 1:S){
-    #Para que no se enoje R cuando explotan los valores
+
     if (!is.nan(evol_cont[num+1,i]) && evol_cont[num+1,i] >= bound && evol_cont[num+1,i] <= 1){
       Sp <- Sp+1
     }
   }
   
-  ### Para obtener la abundancia final
+  #For final abundance
   abundancia <- evol_cont[num+1,]
   return(list(evol_cont = evol_cont, Sp = Sp, abundancia = abundancia))
 }
