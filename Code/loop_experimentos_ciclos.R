@@ -3,13 +3,13 @@
 #for all network configurations
 
 #interactions networks
-load("./array_redes_filtradasBUENO.Rdata")
+load("./array_redes_filtradas.Rdata")
 
 #Growth rates of each species in the communities
-load("./ris_BUENO.Rdata")
+load("./ris.Rdata")
 
 ##Initial abundances
-load("./X0_BUENO.Rdata")
+load("./X0.Rdata")
 
 matriz_abundancias = X0 #matrix of species abundances
 matriz_ris = ris2 #matrix of population growth rates
